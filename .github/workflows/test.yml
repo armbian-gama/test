@@ -53,4 +53,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           days_old: 10
       - name: "sleep"
-        run: sleep 100
+        run: sleep 1001
