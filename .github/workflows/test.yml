@@ -1,0 +1,53 @@
+name: Build Images
+#
+on:
+  repository_dispatch:
+    types: ["Dispatched jobs"]
+  workflow_dispatch:
+    inputs:
+      release:
+        type: choice
+        description: 'Release'
+        options:
+        - nightly
+        - stable
+      board:
+        description: 'Board'
+        required: false
+        default: ''
+      version:
+        description: 'Version'
+        required: false
+        default: ''
+
+
+jobs:
+
+  Prepare:
+    name: "Prepare"
+    if: ${{ github.repository_owner == 'armbian-gama' }}
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{steps.releases.outputs.version}}
+    steps:
+
+      - name: "Cancel active workflow"
+        uses: styfle/cancel-workflow-action@0.11.0
+        with:
+          all_but_latest: true
+          access_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Keep only 32 nightly releases"
+        uses: Vucko130/delete-older-releases@v0.2.2
+        with:
+          keep_latest: 32
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Purge action workflow logs"
+        uses: igorjs/gh-actions-clean-workflow@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          days_old: 10
+      - name: "sleep"
+        run: sleep 100
